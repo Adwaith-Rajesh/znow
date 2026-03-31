@@ -6,7 +6,7 @@ const MAX_SEQUENCE = ((1 << SEQUENCE_BITS) - 1);
 const WORKER_ID_SHIFT = SEQUENCE_BITS;
 const TIMESTAMP_SHIFT = WORKER_ID_BITS + SEQUENCE_BITS;
 
-fn Snowflake(comptime thread_safe: bool) type {
+pub fn Snowflake(comptime thread_safe: bool) type {
     return struct {
         io: std.Io,
 
