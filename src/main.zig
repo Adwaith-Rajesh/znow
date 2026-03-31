@@ -75,5 +75,3 @@ test "Snowflake_no_threads" {
         try std.testing.expect(!res.found_existing);
     }
 }
-
-test "Snowflake_threaded" {}
