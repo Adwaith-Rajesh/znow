@@ -54,10 +54,10 @@ const znow = @import("znow");
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
 
-    var flake: znow.Snowflake(false) = .init(io, 12);
+    var flake: znow.Snowflake(.not_thread_safe) = .init(io, 12);
 
-    // use true for thread safe implementation
-    // var flake: znow.Snowflake(true) = .init(io, 12);
+    // use .thread_safe for thread safe implementation
+    // var flake: znow.Snowflake(.thread_safe) = .init(io, 12);
 
     for (0..100) |_| {
         std.debug.print("flake -> {d}\n", .{try flake.next()});
