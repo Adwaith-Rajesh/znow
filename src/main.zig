@@ -27,7 +27,16 @@ const MAX_SEQUENCE = ((1 << SEQUENCE_BITS) - 1);
 const WORKER_ID_SHIFT = SEQUENCE_BITS;
 const TIMESTAMP_SHIFT = WORKER_ID_BITS + SEQUENCE_BITS;
 
-pub fn Snowflake(comptime thread_safe: bool) type {
+// The enums are called thread_safe and not_thread_safe because
+// I wanted them to be as obvious as possible since these values are
+// passed at comptime and anyone reading the type Snowflake(.thread_safe) can
+// instantly say, "Yep, thread safe implementation of Snowflake"
+pub const ThreadSafe = enum(u8) {
+    thread_safe,
+    not_thread_safe,
+};
+
+pub fn Snowflake(comptime thread_safe: ThreadSafe) type {
     return struct {
         io: std.Io,
 
@@ -38,7 +47,7 @@ pub fn Snowflake(comptime thread_safe: bool) type {
 
         sequence: u16 = 0,
         last_timestamp: u64 = 0,
-        mutex: if (thread_safe) std.Io.Mutex else void = if (thread_safe) .init else {},
+        mutex: if (thread_safe == .thread_safe) std.Io.Mutex else void = if (thread_safe == .thread_safe) .init else {},
 
         const Self = @This();
 
@@ -62,8 +71,8 @@ pub fn Snowflake(comptime thread_safe: bool) type {
         }
 
         pub fn next(self: *Self) !u64 {
-            if (thread_safe) try self.mutex.lock(self.io);
-            defer if (thread_safe) self.mutex.unlock(self.io);
+            if (thread_safe == .thread_safe) try self.mutex.lock(self.io);
+            defer if (thread_safe == .thread_safe) self.mutex.unlock(self.io);
 
             var ts: u64 = self.nowMs();
 
@@ -84,7 +93,7 @@ pub fn Snowflake(comptime thread_safe: bool) type {
 
 test "Snowflake_no_threads" {
     // is this test even necessary
-    var flake: Snowflake(false) = .init(std.testing.io, 12);
+    var flake: Snowflake(.not_thread_safe) = .init(std.testing.io, 12);
 
     var set: std.AutoHashMap(u64, void) = .init(std.testing.allocator);
     defer set.deinit();
