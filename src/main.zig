@@ -70,7 +70,7 @@ pub fn Snowflake(comptime thread_safe: ThreadSafe) type {
             return curr_ts;
         }
 
-        pub fn next(self: *Self) !u64 {
+        pub fn next(self: *Self) if (thread_safe == .thread_safe) std.Io.Cancelable!u64 else u64 {
             if (thread_safe == .thread_safe) try self.mutex.lock(self.io);
             defer if (thread_safe == .thread_safe) self.mutex.unlock(self.io);
 
@@ -93,7 +93,7 @@ pub fn Snowflake(comptime thread_safe: ThreadSafe) type {
 
 test "Snowflake_no_threads" {
     // is this test even necessary
-    var flake: Snowflake(.not_thread_safe) = .init(std.testing.io, 12);
+    var flake: Snowflake(.thread_safe) = .init(std.testing.io, 12);
 
     var set: std.AutoHashMap(u64, void) = .init(std.testing.allocator);
     defer set.deinit();

@@ -60,7 +60,7 @@ pub fn main(init: std.process.Init) !void {
     // var flake: znow.Snowflake(.thread_safe) = .init(io, 12);
 
     for (0..100) |_| {
-        std.debug.print("flake -> {d}\n", .{try flake.next()});
+        std.debug.print("flake -> {d}\n", .{flake.next()});
     }
 }
 ```
